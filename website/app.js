@@ -26,7 +26,9 @@ document.getElementById("generate").addEventListener("click", async function () 
         console.log(weatherUrl);
         fetchDataFromWeatherApi(weatherUrl).then((res) => {
             let dataObject = { "city": res.name, "zipCode": zipCode, "temp": res.main.temp, "feelings": feelings, "date": newDate }
-            postDataToMyServer(dataObject);
+            return dataObject
+        }).then((data)=>{
+            postDataToMyServer(data);
         }).catch((err) => {
             console.log("Error: ", err)
         })
@@ -46,8 +48,10 @@ const fetchDataFromWeatherApi = async (url) => {
     try {
         const res = await fetch(url);
         let myData = await res.json();
-        if (myData.cod != 200)
+        if (myData.cod != 200){
+            updateUI(null);
             return alert(myData.message);
+        }
         return myData;
     }
     catch (err) {
@@ -86,12 +90,19 @@ const getDataFromMyServer = async () => {
 }
 
 function updateUI(dataObject) {
-    dateElement.innerHTML = `Today: ${dataObject.date}`;
-    tempElement.innerHTML = `Temperature: ${dataObject.temp}`;
-    contentElement.innerHTML = `
-    City: ${dataObject.city}<br>
-    Feelings: ${dataObject.feelings}
-    `
+    if(dataObject === null) { 
+    dateElement.innerHTML = "";
+    tempElement.innerHTML = "";
+    contentElement.innerHTML = "";
+    }
+    else{
+        dateElement.innerHTML = `Today: ${dataObject.date}`;
+        tempElement.innerHTML = `Temperature: ${dataObject.temp}`;
+        contentElement.innerHTML = `
+        City: ${dataObject.city}<br>
+        Feelings: ${dataObject.feelings}
+        `
+    }
 }
 
 
